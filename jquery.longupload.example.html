@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
+<html> 
+ <head> 
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+    <title>longupload example</title> 
+    <link href="css/custom-theme/jquery-ui-1.8.6.custom.css" rel="stylesheet" type="text/css"></link> 
+    <script language="javascript" type="text/javascript" src="js/jquery-1.4.2.min.js"></script> 
+    <script language="javascript" type="text/javascript" src="js/jquery-ui-1.8.6.custom.min.js"></script> 
+    <script language="javascript" type="text/javascript" src="jshash-2.2/md5-min.js"></script>
+    <script language="javascript" type="text/javascript" src="jquery.longupload.js"></script>
+</script>
+ </head> 
+ <body>
+
+<h3>longupload example</h3>
+
+<table>
+<tr><td style="vertical-align: top">
+<form action="#">
+
+</form>
+<button go>go</button>
+<button stop>stop</button>
+</td><td style="vertical-align: top">
+<div longupload-progress-for="*" id="progress"></div>
+</td></tr>
+</table>
+
+
+<script language="javascript" type="text/javascript">
+$('button[go]').click(function(){
+    $('form :file').longupload('go');
+  });
+$('button[stop]').click(function(){
+    $('form :file').longupload('stop');
+  });
+$('input:file').live('change',function(){
+    maybemorefiles(this.parentNode.parentNode);
+  });
+function removefiles() {
+  var gp = this.parentNode.parentNode;
+  $(this).siblings('input').longupload('stop');
+  $(this.parentNode).remove();
+  maybemorefiles(gp);
+  return false;
+}
+function maybemorefiles(container) {
+  var last = $(container).find('input:file').last();
+  if (!last.length || last[0].value.length) {
+    var newdiv = $('<div><input type="file" /> <button class="remove">remove</button></div>');
+    $(container).append(newdiv);
+    $(newdiv).find('input:file').longupload({'sProgressTarget': '#progress'});
+    $(newdiv).find('button.remove').click(removefiles);
+  }
+}
+function finish(event, jobs) {
+  if (event.type != 'longupload-queue-finish') return;
+  var params = { 'filecount': jobs.length };
+  $.each(jobs,function(i,job){
+	  params['file'+i+'_name'] = job.get_file().name;
+	  params['file'+i+'_upload_id'] = job.get_upload_id();
+	});
+  console.log(params);
+}
+$(document).ready(function(){maybemorefiles($('form'));});
+$(document).bind('longupload-queue-finish',finish);
+</script>
+
+</body>
+</html>
