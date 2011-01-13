@@ -47,7 +47,7 @@ function removefiles() {
 function maybemorefiles(container) {
   var last = $(container).find('input:file').last();
   if (!last.length || last[0].value.length) {
-    var newdiv = $('<div><input type="file" /> <button class="remove">remove</button></div>');
+    var newdiv = $('<div><input type="file" multiple="" /> <button class="remove">remove</button></div>');
     $(container).append(newdiv);
     $(newdiv).find('input:file').longupload({'sProgressTarget': '#progress'});
     $(newdiv).find('button.remove').click(removefiles);

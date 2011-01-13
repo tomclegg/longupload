@@ -75,21 +75,21 @@
   Job.prototype.onprogress = function() {
     if (this.state == 'finished') return;
     $(this.domTarget).trigger($.Event('longupload-progress'),
-							  [{ 'state': this.state,
+							  [this, { 'state': this.state,
 									'speed': this.current_speed,
 									'position': this.current_pos,
 									'size': this.file.size }]);
   }
   Job.prototype.onsuccess = function() {
     $(this.domTarget).trigger($.Event('longupload-success'),
-							  [{ 'speed': this.current_speed,
-								 'size': this.file.size }]);
+							  [this, { 'speed': this.current_speed,
+									   'size': this.file.size }]);
   }
   Job.prototype.onfailure = function() {
     $(this.domTarget).trigger($.Event('longupload-failure'),
-							  [{ 'speed': this.current_speed,
-								 'size': this.file.size,
-								 'error': this.error }]);
+							  [this, { 'speed': this.current_speed,
+									   'size': this.file.size,
+									   'error': this.error }]);
   }
   Job.prototype.abort = function() {
     if (this.state == 'finished') return;
@@ -116,7 +116,7 @@
       was_in_progress.writer.xhr.abort();
     }
     $(this.domTarget).trigger($.Event('longupload-abort'),
-  { 'size': this.file.size });
+							  [this, { 'size': this.file.size }]);
   }
   function humanBytes(x) {
     var u = 'B';
@@ -312,6 +312,7 @@
 		$.each(ludata.jobs, Job.prototype.abort);
 		if (ludata.jobs.length > 0)
 		  ludata.jobs[0].queueTarget.queue('longupload', []);
+		ludata.jobs.splice(0);
       });
   }
   function go(opts) {
@@ -319,13 +320,14 @@
       opts = {};
     this.longupload("stop");
     this.each(clear_progressbars);
+	var queue = [];
     var queueTarget = $(opts.sQueueTarget ? opts.sQueueTarget : document);
     var alljobs = [];
     var ret = this.each(function(){
 		var $this = $(this);
 		var ludata = $this.data("longupload");
-		var filelist = '';
-		for (var i=0,f; f=this.files[i]; i++) {
+		for (var i=0; this.files[i]; i++) {
+		  var f = this.files[i];
 		  var job = new Job ({"ludata": ludata,
 							  "domTarget": this,
 							  "queueTarget": queueTarget,
@@ -342,19 +344,20 @@
 		  if (ludata.opts.bAutoProgressBar)
 			add_progressbar(this, $this, job);
 		  var runjob = function(next) {
-			job.next = next;
-			job.read_current_slice();
+			arguments.callee.job.next = next;
+			arguments.callee.job.read_current_slice();
 		  };
 		  runjob.job = job;
-		  queueTarget.queue('longupload', runjob);
-		  $this.trigger($.Event('longupload-queue'));
+		  queue.push(runjob);
+		  $this.trigger($.Event('longupload-queue'), [job]);
 		}
       });
     var runfinish = function(){
       queueTarget.trigger($.Event('longupload-queue-finish'), [alljobs]);
     };
     runfinish.trigger_finish = true;
-    queueTarget.queue('longupload', runfinish);
+	queue.push(runfinish);
+	queueTarget.queue('longupload', queue);
     queueTarget.dequeue('longupload');
     return ret;
   }
@@ -378,7 +381,8 @@
     textdiv.css('font', '9pt sans-serif');
     target.append(row);
     job.progressbar_row = row;
-    function progressfunction (e, p) {
+    function progressfunction (e, j, p) {
+	  if (j != job) return;
       var statustext;
       var speed = p && p.speed ? '(' + p.speed + ')' : '';
 	  var d = new Date();
