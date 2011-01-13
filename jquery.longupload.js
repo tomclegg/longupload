@@ -414,8 +414,8 @@
 		pdiv.progressbar('option', 'value', percent);
 		statustext = [(p.state == 'scan' ? 'scanned ' : 'uploaded '),
 					  percent.toFixed(0), '% [',
-					  humanBytes(p.position), '] at ',
-					  p.speed].join('');
+					  humanBytes(p.position), '] ',
+					  speed].join('');
       }
       textdiv.html(['<span style="font:9pt monospace">',
 					job.file.name, '</span> [',
