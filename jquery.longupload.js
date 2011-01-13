@@ -21,6 +21,7 @@
   };
 
   $.fn.longupload.defaults = {
+    'sUploadHandlerURI': 'jquery.longupload.server.php',
     'bAutoProgressBar': true,
     'bQuicksigSize': 256,
     'fScanChunkSize': scan_chunk_size
@@ -182,7 +183,7 @@
     this.writer.xhr = xhr;
     this.current_pos = this.writer.start;
     this.onprogress();
-    xhr.open("POST", "jquery.longupload.server.php", true);
+    xhr.open('POST', this.ludata.opts.sUploadHandlerURI, true);
     var thisjob = this;
     xhr.upload.onprogress = function(e) {
       thisjob.current_pos = thisjob.writer.start + e.loaded;
@@ -289,7 +290,7 @@
       this.onprogress();
       this.reader.startTime = (new Date()).getTime();
       var thisjob = this;
-      this.xhr = $.post("jquery.longupload.server.php",
+      this.xhr = $.post(this.ludata.opts.sUploadHandlerURI,
 						{ "file_quicksig": this.file_quicksig },
 						function(d,t,r){
 						  thisjob.read_in_progress = false;

@@ -28,6 +28,11 @@
 
 
 <script language="javascript" type="text/javascript">
+
+// Set default options for $(...).longupload({...})
+$.fn.longupload.defaults.sUploadHandlerURI = 'jquery.longupload.server.php';
+$.fn.longupload.defaults.sProgressTarget = '#progress';
+
 $('button[go]').click(function(){
     $('form :file').longupload('go');
   });
@@ -49,7 +54,7 @@ function maybemorefiles(container) {
   if (!last.length || last[0].value.length) {
     var newdiv = $('<div><input type="file" multiple="" /> <button class="remove">remove</button></div>');
     $(container).append(newdiv);
-    $(newdiv).find('input:file').longupload({'sProgressTarget': '#progress'});
+    $(newdiv).find('input:file').longupload();
     $(newdiv).find('button.remove').click(removefiles);
   }
 }
