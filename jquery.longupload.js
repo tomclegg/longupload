@@ -1,4 +1,4 @@
-// -*- mode: java; c-basic-offset: 2; tab-width: 4; -*-
+// -*- mode: java; c-basic-offset: 2; tab-width: 4; indent-tabs-mode: nil; -*-
 //
 // Copyright 2011 Clinical Future, Inc.
 
@@ -157,9 +157,8 @@
   }
   Job.prototype.read_current_slice = function() {
     if (this.reader.start >= this.file.size) {
-      this.state = 'finished';
-      this.onsuccess();
-      this.next();
+      this.read_in_progress = true;
+      this.reader.ready = true;
       return;
     }
     this.reader.databytes = this.state=='scan' ?
@@ -251,6 +250,13 @@
   Job.prototype.filereader_onload = function() {
     if (!this.read_in_progress)
       return;
+    if ('boolean' == typeof this.read_in_progress) {
+      this.read_in_progress = false;
+      this.state = 'finished';
+      this.onsuccess();
+      this.next();
+      return;
+    }
     if (this.filereader.result.length != this.reader.databytes) {
       // The user agent lied; the read operation failed.  Do what the
       // user agent should have done.
