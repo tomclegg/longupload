@@ -195,6 +195,7 @@
     };
     xhr.setRequestHeader("Content-Type", "application/octet-stream");
     xhr.setRequestHeader("X-Upload-Id", this.server_says.upload_id);
+    xhr.setRequestHeader("X-Upload-Size", this.file.size);
     xhr.setRequestHeader("X-Piece-Quicksig", this.writer.quicksig);
     xhr.setRequestHeader("X-Piece-Position", this.writer.start);
     xhr.setRequestHeader("X-Piece-Size", this.writer.blob.size);

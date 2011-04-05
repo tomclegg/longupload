@@ -23,6 +23,11 @@ class jQueryLonguploadReceiver {
 	return './longupload-cache';
   }
 
+  function hook_piece_written($is_last_piece) {
+	// Do stuff after a piece of a file has been received and written
+	// to disk.
+  }
+
   function get_cachefile($upload_id) {
 	if (!is_writable($this->get_cachedir().'/.'))
 	  $this->error_out ('server setup problem: cache directory is unwritable');
@@ -105,6 +110,9 @@ class jQueryLonguploadReceiver {
 
 	$this->response['success'] = true;
 	$this->response['piece_size_received'] = $wrote;
+
+	$this->hook_piece_written($this->response['piece_position'] + $wrote ==
+							  $this->response['upload_size']);
   }
 
   // Remove naughty characters from the given string.
@@ -160,6 +168,7 @@ class jQueryLonguploadReceiver {
 
   function handle_upload_piece() {
 	$upload_id = $_SERVER['HTTP_X_UPLOAD_ID'];
+	$upload_size = $_SERVER['HTTP_X_UPLOAD_SIZE'];
 	$piece_quicksig = $_SERVER['HTTP_X_PIECE_QUICKSIG'];
 	$piece_position = $_SERVER['HTTP_X_PIECE_POSITION'];
 	$piece_size = $_SERVER['HTTP_X_PIECE_SIZE'];
@@ -172,6 +181,7 @@ class jQueryLonguploadReceiver {
 
 	$this->response = array
 	  ('upload_id' => $upload_id,
+	   'upload_size' => $upload_size,
 	   'piece_quicksig' => $piece_quicksig,
 	   'piece_quicksig_received' => $this->quicksig($piece_data),
 	   'piece_position' => $piece_position,
