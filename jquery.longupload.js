@@ -159,6 +159,8 @@
     if (this.reader.start >= this.file.size) {
       this.read_in_progress = true;
       this.reader.ready = true;
+      if (!this.upload_in_progress)
+        this.filereader_onload();
       return;
     }
     this.reader.databytes = this.state=='scan' ?
