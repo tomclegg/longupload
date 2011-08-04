@@ -167,9 +167,15 @@
 	this.ludata.opts.bQuicksigSize : this.bufsize;
     this.reader.databytes = Math.min(this.reader.databytes,
 									 this.file.size - this.reader.start);
-    this.reader.blob =
-	this.file.slice(this.reader.start, this.reader.databytes,
-					'application/octet-stream; charset=x-user-defined');
+    if (this.file.slice)
+      this.reader.blob = this.file.slice(this.reader.start, this.reader.databytes,
+                                         'application/octet-stream; charset=x-user-defined');
+    else if (this.file.mozSlice)
+      this.reader.blob = this.file.mozSlice(this.reader.start, this.reader.databytes,
+                                            'application/octet-stream; charset=x-user-defined');
+    else if (this.file.webkitSlice)
+      this.reader.blob = this.file.webkitSlice(this.reader.start, this.reader.databytes,
+                                               'application/octet-stream; charset=x-user-defined');
     delete this.filereader;
     this.filereader = new FileReader();
     var thisjob = this;
