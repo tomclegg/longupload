@@ -132,7 +132,7 @@
 	return this.file;
   }
   Job.prototype.get_upload_id = function() {
-	return this.server_says.upload_id;
+	return this.server_says ? this.server_says.upload_id : null;
   }
   Job.prototype.handle_server_response_to_upload_start = function(response) {
     this.state = 'upload';
