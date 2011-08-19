@@ -167,15 +167,18 @@
 	this.ludata.opts.bQuicksigSize : this.bufsize;
     this.reader.databytes = Math.min(this.reader.databytes,
 									 this.file.size - this.reader.start);
-    if (this.file.slice)
-      this.reader.blob = this.file.slice(this.reader.start, this.reader.databytes,
-                                         'application/octet-stream; charset=x-user-defined');
-    else if (this.file.mozSlice)
-      this.reader.blob = this.file.mozSlice(this.reader.start, this.reader.databytes,
+    if (this.file.mozSlice)
+      // (start, end, mimetype) -- Firefox                                                                                                                                
+      this.reader.blob = this.file.mozSlice(this.reader.start, this.reader.databytes+this.reader.start,
                                             'application/octet-stream; charset=x-user-defined');
     else if (this.file.webkitSlice)
-      this.reader.blob = this.file.webkitSlice(this.reader.start, this.reader.databytes,
+      // (start, end, mimetype) -- Chrome                                                                                                                                 
+      this.reader.blob = this.file.webkitSlice(this.reader.start, this.reader.databytes+this.reader.start,
                                                'application/octet-stream; charset=x-user-defined');
+    else if (this.file.slice)
+      // (start, length, mimetype) -- http://www.w3.org/TR/FileAPI/ 26 October 2010                                                                                       
+      this.reader.blob = this.file.slice(this.reader.start, this.reader.databytes,
+                                         'application/octet-stream; charset=x-user-defined');
     delete this.filereader;
     this.filereader = new FileReader();
     var thisjob = this;
