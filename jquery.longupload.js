@@ -134,6 +134,9 @@
   Job.prototype.get_upload_id = function() {
 	return this.server_says ? this.server_says.upload_id : null;
   }
+  Job.prototype.get_last_server_response = function() {
+	return this.server_says;
+  }
   Job.prototype.handle_server_response_to_upload_start = function(response) {
     this.state = 'upload';
     this.server_says = response;
@@ -246,6 +249,7 @@
 		  this.current_speed = false;
 		this.current_pos = this.writer.start + this.writer.databytes;
 		this.onprogress();
+        $.extend(this.server_says, resp);
 		if (this.reader.ready) {
 		  this.reader.ready = false;
 		  this.filereader_onload();
