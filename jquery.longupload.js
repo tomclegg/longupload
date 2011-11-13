@@ -27,7 +27,7 @@
     'fScanChunkSize': scan_chunk_size
   };
 
-  var compatibility_check = false;
+  $.fn.longupload.need_compatibility_check = true;
 
   function option (key, val) {
 	this.data('longupload').opts[key] = val;
@@ -35,8 +35,8 @@
 
   function init (opts_create) {
 
-    if (!compatibility_check) {
-      compatibility_check = true;
+    if ($.fn.longupload.need_compatibility_check) {
+      $.fn.longupload.need_compatibility_check = false;
       if (!(window.File &&
 			window.FileReader &&
 			window.FileList &&
