@@ -313,7 +313,8 @@
       this.reader.startTime = (new Date()).getTime();
       var thisjob = this;
       this.xhr = $.post(this.ludata.opts.sUploadHandlerURI,
-						{ "file_quicksig": this.file_quicksig },
+						{ "file_quicksig": this.file_quicksig,
+                          "file_name": this.file.name },
 						function(d,t,r){
 						  thisjob.read_in_progress = false;
 						  thisjob.handle_server_response_to_upload_start(d);

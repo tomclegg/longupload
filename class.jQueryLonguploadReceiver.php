@@ -39,13 +39,15 @@ class jQueryLonguploadReceiver {
   // Override the next two functions in order to use a different
   // method for storing file data as it is received.
 
-  function start_or_resume_file($file_quicksig) {
+  function start_or_resume_file($file_quicksig, &$params) {
 	$upload_id = $this->response['upload_id'];
 	$cachefile = $this->get_cachefile($upload_id);
 	$complete = false;
 	$resume_from = 0;
 	if (!touch($cachefile))
 	  $this->error_out ('could not create/update cache file', true);
+	$timestamp = time();
+	file_put_contents("$cachefile.filename.$timestamp", @$params['file_name']);
 	if (file_exists($cachefile)) {
 	  $filesize = filesize ($cachefile);
 	  $filesize_verified = 0;
@@ -158,12 +160,12 @@ class jQueryLonguploadReceiver {
     exit;
   }
 
-  function handle_upload_start($file_quicksig) {
+  function handle_upload_start($file_quicksig, &$params) {
 	$upload_id = md5($file_quicksig);
 	$this->response['upload_id'] = $upload_id;
 	$this->response['max_databytes'] = $this->max_databytes();
 	$this->response['success'] = false;
-	$this->start_or_resume_file ($file_quicksig);
+	$this->start_or_resume_file ($file_quicksig, &$params);
   }
 
   function handle_upload_piece() {
@@ -206,7 +208,7 @@ class jQueryLonguploadReceiver {
 	if (isset($_SERVER['HTTP_X_UPLOAD_ID']))
 	  $this->handle_upload_piece();
 	else if (isset($_POST['file_quicksig']))
-	  $this->handle_upload_start($_POST['file_quicksig']);
+	  $this->handle_upload_start($_POST['file_quicksig'], &$_POST);
 	else
 	  return false;				// evidently this request was not meant for us
 	print json_encode ($this->response);
