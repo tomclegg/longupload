@@ -55,7 +55,7 @@ class jQueryLonguploadReceiver {
 	  $fh = fopen ($cachefile, 'r');
 	  foreach (explode (',', $file_quicksig) as $qs) {
 		if (preg_match ('/^\d+$/', $qs)) {
-		  $filesize_client = $qs;
+		  $filesize_client = $this->response['upload_size'] = $qs;
 		  continue;
 		}
 		list ($pos, $len, $md5) = explode ('-', $qs);
