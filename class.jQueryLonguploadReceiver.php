@@ -131,8 +131,8 @@ class jQueryLonguploadReceiver {
   function quicksig (&$s)
   {
     $sigparts = '';
-    for ($i=0; $i<strlen(&$s); $i+=524288)
-	  $sigparts .= substr(&$s, $i, self::quicksig_frag_size);
+    for ($i=0; $i<strlen($s); $i+=524288)
+	  $sigparts .= substr($s, $i, self::quicksig_frag_size);
     return md5($sigparts);
   }
 
@@ -165,7 +165,7 @@ class jQueryLonguploadReceiver {
 	$this->response['upload_id'] = $upload_id;
 	$this->response['max_databytes'] = $this->max_databytes();
 	$this->response['success'] = false;
-	$this->start_or_resume_file ($file_quicksig, &$params);
+	$this->start_or_resume_file ($file_quicksig, $params);
   }
 
   function handle_upload_piece() {
@@ -174,10 +174,10 @@ class jQueryLonguploadReceiver {
 	$piece_quicksig = $_SERVER['HTTP_X_PIECE_QUICKSIG'];
 	$piece_position = $_SERVER['HTTP_X_PIECE_POSITION'];
 	$piece_size = $_SERVER['HTTP_X_PIECE_SIZE'];
-	self::sanitize (&$upload_id);
-	self::sanitize (&$piece_quicksig);
-	self::sanitize (&$piece_position);
-	self::sanitize (&$piece_size);
+	self::sanitize ($upload_id);
+	self::sanitize ($piece_quicksig);
+	self::sanitize ($piece_position);
+	self::sanitize ($piece_size);
 
 	$piece_data = file_get_contents ('php://input');
 
@@ -196,7 +196,7 @@ class jQueryLonguploadReceiver {
 	if ($this->response['piece_quicksig_received'] !== $piece_quicksig)
 	  $this->error_out ('checksum mismatch');
 
-	$this->store_piece (&$piece_data);
+	$this->store_piece ($piece_data);
   }
 
   function handle_post() {
@@ -208,7 +208,7 @@ class jQueryLonguploadReceiver {
 	if (isset($_SERVER['HTTP_X_UPLOAD_ID']))
 	  $this->handle_upload_piece();
 	else if (isset($_POST['file_quicksig']))
-	  $this->handle_upload_start($_POST['file_quicksig'], &$_POST);
+	  $this->handle_upload_start($_POST['file_quicksig'], $_POST);
 	else
 	  return false;				// evidently this request was not meant for us
 	print json_encode ($this->response);
