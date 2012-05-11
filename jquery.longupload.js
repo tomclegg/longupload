@@ -145,6 +145,8 @@
 	  this.onfailure();
 	  return;
 	}
+    if ($('meta[name="csrf-token"]').length > 0)
+      this.csrf_token = $('meta[name="csrf-token"]').attr('content');
     this.bufsize = 65536;
     this.elapsed = 0;
     this.reader.start = 0;
@@ -211,6 +213,8 @@
     xhr.setRequestHeader("X-Piece-Quicksig", this.writer.quicksig);
     xhr.setRequestHeader("X-Piece-Position", this.writer.start);
     xhr.setRequestHeader("X-Piece-Size", this.writer.blob.size);
+    if (this.csrf_token)
+      xhr.setRequestHeader("X-CSRF-Token", this.csrf_token);
     xhr.send(this.writer.blob);
   }
   Job.prototype.writer_onload = function(xhr) {
