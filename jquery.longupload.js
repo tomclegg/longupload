@@ -160,7 +160,29 @@
     this.current_position = this.reader.start;
     this.read_current_slice();
   }
+  Job.prototype.detect_slice_syntax_and_reread_current_slice = function() {
+    if (this.filereader.result.length == 1)
+      // original 2006 File API, since deemed erroneous: Blob.slice(start,length)
+      $.fn.longupload.useOldSlice = 1;
+    else
+      $.fn.longupload.useOldSlice = 0;
+    this.read_current_slice();
+  }
   Job.prototype.read_current_slice = function() {
+    var thisjob = this;
+    if ($.fn.longupload.useOldSlice == undefined) {
+      if (this.file.mozSlice)
+        $.fn.longupload.useOldSlice = 0;
+      else if (this.file.webkitSlice)
+        $.fn.longupload.useOldSlice = 0;
+      else {
+        this.filereader = new FileReader();
+        this.filereader.onload = function(){ thisjob.detect_slice_syntax_and_reread_current_slice() };
+        this.filereader.onerror = function(){ thisjob.filereader_onerror() };
+        this.filereader.readAsBinaryString(this.file.slice(1, 1, 'application/octet-stream; charset=x-user-defined'));
+        return;
+      }
+    }
     if (this.reader.start >= this.file.size) {
       this.read_in_progress = true;
       this.reader.ready = true;
@@ -173,20 +195,23 @@
     this.reader.databytes = Math.min(this.reader.databytes,
 									 this.file.size - this.reader.start);
     if (this.file.mozSlice)
-      // (start, end, mimetype) -- Firefox                                                                                                                                
+      // (start, end, mimetype) -- Firefox
       this.reader.blob = this.file.mozSlice(this.reader.start, this.reader.databytes+this.reader.start,
                                             'application/octet-stream; charset=x-user-defined');
     else if (this.file.webkitSlice)
-      // (start, end, mimetype) -- Chrome                                                                                                                                 
+      // (start, end, mimetype) -- Chrome
       this.reader.blob = this.file.webkitSlice(this.reader.start, this.reader.databytes+this.reader.start,
                                                'application/octet-stream; charset=x-user-defined');
-    else if (this.file.slice)
-      // (start, length, mimetype) -- http://www.w3.org/TR/FileAPI/ 26 October 2010                                                                                       
+    else if ($.fn.longupload.useOldSlice)
+      // (start, length, mimetype) -- http://www.w3.org/TR/FileAPI/ 26 October 2010
       this.reader.blob = this.file.slice(this.reader.start, this.reader.databytes,
+                                         'application/octet-stream; charset=x-user-defined');
+    else if (this.file.slice)
+      // (start, end, mimetype) -- http://lists.w3.org/Archives/Public/public-webapps/2011AprJun/0170.html
+      this.reader.blob = this.file.slice(this.reader.start, this.reader.databytes+this.reader.start,
                                          'application/octet-stream; charset=x-user-defined');
     delete this.filereader;
     this.filereader = new FileReader();
-    var thisjob = this;
     this.filereader.onload = function(){ thisjob.filereader_onload() };
     this.filereader.onerror = function(){ thisjob.filereader_onerror() };
     this.filereader.readAsBinaryString(this.reader.blob);
