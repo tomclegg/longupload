@@ -268,6 +268,7 @@
       }
       else {
 		delete this.writer.blob;
+        this.writer.blob = null;
 		var elapsed = ((new Date()).getTime() - this.uploadStartTime) / 1000;
 		if (this.writer.databytes > 0 ||
 			this.writer.start > this.uploadStartByte) {
