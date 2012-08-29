@@ -350,6 +350,10 @@
 						  thisjob.handle_server_response_to_upload_start(d);
 						},
 						"json");
+      this.xhr.error(function(d,t,r){
+          thisjob.read_in_progress = false;
+          thisjob.handle_server_response_to_upload_start({error:'Request failed while starting upload'});
+        });
       return;
     }
     else if (this.state == "upload" &&
