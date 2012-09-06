@@ -392,6 +392,7 @@
     var ret = this.each(function(){
 		var $this = $(this);
 		var ludata = $this.data("longupload");
+        $.extend(ludata.opts, opts);
 		for (var i=0; this.files[i]; i++) {
 		  var f = this.files[i];
 		  var job = new Job ({"ludata": ludata,
