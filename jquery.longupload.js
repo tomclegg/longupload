@@ -349,8 +349,10 @@
       this.reader.startTime = (new Date()).getTime();
       var thisjob = this;
       this.xhr = $.post(this.ludata.opts.sUploadHandlerURI,
-						{ "file_quicksig": this.file_quicksig,
-                          "file_name": this.file.name },
+						$.extend({}, {
+                            "file_quicksig": this.file_quicksig,
+                            "file_name": this.file.name },
+                          this.oUploadHandlerData),
 						function(d,t,r){
 						  thisjob.read_in_progress = false;
 						  thisjob.handle_server_response_to_upload_start(d);
@@ -393,6 +395,7 @@
 		for (var i=0; this.files[i]; i++) {
 		  var f = this.files[i];
 		  var job = new Job ({"ludata": ludata,
+                              "oUploadHandlerData": opts.oUploadHandlerData,
 							  "domTarget": this,
 							  "queueTarget": queueTarget,
 							  "file": f,
@@ -440,8 +443,10 @@
     scandiv.css('margin','0 5px 0 0');
 	scandiv.css({'height': '12px', 'width': '100px'});
 	uploaddiv.css({'height': '12px', 'width': '400px'});
-    scandiv.progressbar().children('div');
-    uploaddiv.progressbar().children('div');
+    if(scandiv.progressbar) {
+      scandiv.progressbar().children('div');
+      uploaddiv.progressbar().children('div');
+    }
     textdiv.css('font', '9pt sans-serif');
     target.append(row);
     job.progressbar_row = row;
@@ -457,8 +462,10 @@
 		statustext = 'queued';
       }
       else if (e.type == 'longupload-success') {
-		scandiv.progressbar('option', 'value', 100);
-		uploaddiv.progressbar('option', 'value', 100);
+        if(scandiv.progressbar) {
+          scandiv.progressbar('option', 'value', 100);
+          uploaddiv.progressbar('option', 'value', 100);
+        }
 		statustext = '<b>finished</b> ' + speed + ' ' + datestring;
       }
       else if (e.type == 'longupload-failure') {
@@ -469,13 +476,17 @@
 		statustext = '<b>cancelled</b> at ' + datestring;
       }
       else if (p.state == 'server-sync') {
-		scandiv.progressbar('option', 'value', 100);
+        if(scandiv.progressbar) {
+          scandiv.progressbar('option', 'value', 100);
+        }
 		statustext = '100% scanned, waiting for server';
       }
       else {
 		var pdiv = p.state == 'scan' ? scandiv : uploaddiv;
 		var percent = 100 * p.position / p.size;
-		pdiv.progressbar('option', 'value', percent);
+        if(scandiv.progressbar) {
+          pdiv.progressbar('option', 'value', percent);
+        }
 		statustext = [(p.state == 'scan' ? 'scanned ' : 'uploaded '),
 					  percent.toFixed(0), '% [',
 					  humanBytes(p.position), '] ',
