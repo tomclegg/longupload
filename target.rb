@@ -6,4 +6,8 @@ module Longupload::Target
     Dir.mkdir x unless File.directory? x
     "#{x}/#{self.longupload_fingerprint}"
   end
+
+  def longupload_id
+    self.id
+  end
 end

@@ -59,7 +59,7 @@ module Longupload::Receiver
         raise "#{@ds.errors.full_messages.join '; '}"
       end
     end
-    @response['upload_id'] = @ds.id
+    @response['upload_id'] = @ds.longupload_id
 
     # Can we write to @cachefile?
     @cachefile = @ds.longupload_cachefile
@@ -129,7 +129,7 @@ module Longupload::Receiver
     @response['piece_size_recieved'] = @data.size
     raise 'Received size mismatch' if @response['piece_size_recieved'].to_i != @response['piece_size'].to_i
     raise 'Received quicksig mismatch' if @response['piece_quicksig_received'] != @response['piece_quicksig']
-    @ds = longupload_target_class.find_all_by_longupload_info(:user => current_user, :upload_id => @response['upload_id']).first
+    @ds = longupload_target_class.find_all_by_longupload_info(:user => current_user, :longupload_id => @response['upload_id']).first
     store_piece(@data)
     logger.info "upload_piece: #{@ds.longupload_cachefile} #{@response.inspect}"
   end
