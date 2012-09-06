@@ -166,7 +166,8 @@ module Longupload::Receiver
     if (@next_bytes_to_write > 0) then
       # Give someone a chance to copy this to the warehouse, or queue
       # a job to do so.
-      @ds.after_longupload_block(blockindex)
+      @ds.after_longupload_block(@blockindex)
+
       # Then write the rest of the data
       @blockindex += 1
       @fh = File.open("#{@cachefile}.todo.#{@blockindex}","w")
