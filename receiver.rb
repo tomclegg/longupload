@@ -2,22 +2,28 @@ module Longupload::Receiver
 
   WAREHOUSE_BLOCK_SIZE = 2**26
 
-  def longupload
+  def longupload(opts)
     @longupload_max_databytes = 2**24
     @longupload_max_databytes = LONGUPLOAD_MAX_DATABYTES if defined? LONGUPLOAD_MAX_DATABYTES
     @response = {}
-    @ds = nil
+    @ds = opts[:target]
     begin
       if request.env.has_key?('HTTP_X_UPLOAD_ID') then
         handle_upload_piece
       elsif params.has_key?('file_quicksig') then
-        handle_upload_start
+        @fingerprint = Digest::MD5.hexdigest(params[:file_quicksig])
+        if @ds and @ds.longupload_fingerprint and
+            @ds.longupload_fingerprint != @fingerprint
+          raise "You seem to be resuming an incomplete upload using a different file.  Please use the same file, or start over with a new upload."
+        end
+        handle_upload_start(opts)
       else
         return false
       end
     rescue Exception => e
       @response['success'] = false
       @response['error'] = e.message
+      @response['rails_errors'] = @ds.errors if @ds and @ds.respond_to? :errors
       logger.debug e.message
       logger.debug e.backtrace.join("\n")
     end
@@ -27,9 +33,8 @@ module Longupload::Receiver
 
   private
 
-  def handle_upload_start
+  def handle_upload_start(opts)
     raise 'You need to be logged in to upload' if not current_user
-    @fingerprint = Digest::MD5.hexdigest(params[:file_quicksig])
     @response['max_databytes'] = @longupload_max_databytes
     @response['success'] = false
     start_or_resume_file(params[:file_quicksig])
@@ -45,12 +50,13 @@ module Longupload::Receiver
       @filesize_client = @md[1].to_i
     end
 
-    @target_spec = params[:longupload_target].
-      merge(:user => current_user,
-            :longupload_fingerprint => @fingerprint,
-            :longupload_file_name => params[:file_name],
-            :longupload_size => @filesize_client)
-    @ds = longupload_target_class.find_all_by_longupload_info(@target_spec).first
+    @target_spec = {
+      :user => current_user,
+      :longupload_fingerprint => @fingerprint,
+      :longupload_file_name => params[:file_name],
+      :longupload_size => @filesize_client
+    }
+    @ds ||= longupload_target_class.find_all_by_longupload_info(@target_spec).first
     if !@ds
       @ds = longupload_target_class.new(@target_spec)
       @ds.longupload_bytes_received = 0
@@ -59,6 +65,9 @@ module Longupload::Receiver
         raise "#{@ds.errors.full_messages.join '; '}"
       end
     end
+    @ds.longupload_fingerprint ||= @fingerprint
+    @ds.longupload_file_name ||= params[:file_name]
+    @ds.longupload_size ||= @filesize_client
     @response['upload_id'] = @ds.longupload_id
 
     # Can we write to @cachefile?
