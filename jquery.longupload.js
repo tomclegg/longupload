@@ -29,6 +29,13 @@
 
   $.fn.longupload.need_compatibility_check = true;
 
+  $.fn.longupload.fnCheckCompatibility = function() {
+    return (window.File &&
+            window.FileReader &&
+            window.FileList &&
+            window.Blob);
+  }
+
   function option (key, val) {
 	this.data('longupload').opts[key] = val;
   }
@@ -37,10 +44,7 @@
 
     if ($.fn.longupload.need_compatibility_check) {
       $.fn.longupload.need_compatibility_check = false;
-      if (!(window.File &&
-			window.FileReader &&
-			window.FileList &&
-			window.Blob)) {
+      if (!$.fn.longupload.fnCheckCompatibility()) {
 		alert('The File APIs are not fully supported in this browser.');
       } else if (!rstr_md5 || !rstr2hex) {
 		alert('Installation problem: need rstr_md5() and rstr2hex()');
