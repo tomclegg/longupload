@@ -3,6 +3,7 @@ module Longupload::Receiver
   WAREHOUSE_BLOCK_SIZE = 2**26
 
   def longupload(opts)
+    @longupload_min_databytes = 2**20
     @longupload_max_databytes = 2**24
     @longupload_max_databytes = LONGUPLOAD_MAX_DATABYTES if defined? LONGUPLOAD_MAX_DATABYTES
     @response = {}
@@ -36,6 +37,7 @@ module Longupload::Receiver
   def handle_upload_start(opts)
     raise 'You need to be logged in to upload' if not current_user
     @response['max_databytes'] = @longupload_max_databytes
+    @response['min_databytes'] = @longupload_min_databytes
     @response['success'] = false
     start_or_resume_file(params[:file_quicksig])
     logger.info "upload_start: #{@ds.longupload_cachefile} #{@response.inspect}"

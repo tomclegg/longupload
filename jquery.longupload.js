@@ -147,7 +147,7 @@
 	}
     if ($('meta[name="csrf-token"]').length > 0)
       this.csrf_token = $('meta[name="csrf-token"]').attr('content');
-    this.bufsize = 65536;
+    this.bufsize = response.min_databytes || 65536;
     this.elapsed = 0;
     this.reader.start = 0;
     if (response.resume_from > 0)
