@@ -99,9 +99,10 @@ module Longupload::Receiver
           @filesize_stored += @md[1].to_i
           next
         elsif (@ds.warehouse_blocks and @ds.warehouse_blocks[@i+1]) or
-            File.symlink?("#{@cachefile}.block.#{@i+1}") then
-          # we've already stored this and the next block in the
-          # warehouse
+            File.symlink?("#{@cachefile}.block.#{@i+1}") or
+            File.exists?("#{@cachefile}.todo.#{@i+1}") then
+          # we've already stored this block in the warehouse, and
+          # started another block
           @filesize_stored += WAREHOUSE_BLOCK_SIZE
           next
         else
