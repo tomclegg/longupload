@@ -234,9 +234,8 @@
       thisjob.onprogress();
     };
     xhr.onreadystatechange = function() {
-      thisjob.writer_onload(arguments.callee.xhr);
+      thisjob.writer_onload(thisjob.writer.xhr);
     };
-    xhr.onreadystatechange.xhr = xhr;
     xhr.setRequestHeader("Content-Type", "application/octet-stream");
     xhr.setRequestHeader("X-Upload-Id", this.server_says.upload_id);
     xhr.setRequestHeader("X-Upload-Size", this.file.size);
@@ -249,12 +248,12 @@
   }
   Job.prototype.writer_onload = function(xhr) {
     if (this.writer.abort) {
-      xhr.onreadystatechange.xhr = null;
+      this.writer.xhr = null;
       xhr.onreadystatechange = null;
       return;
     }
     if (xhr.readyState === 4) {
-      xhr.onreadystatechange.xhr = null;
+      this.writer.xhr = null;
       xhr.onreadystatechange = null;
       if (!this.upload_in_progress) return;
       this.upload_in_progress = false;
