@@ -196,12 +196,6 @@ module Longupload::Receiver
         new_bytes_received == @blockindex * WAREHOUSE_BLOCK_SIZE then
       @ds.after_longupload_block(@blockindex)
     end
-    if (new_bytes_received == @response['upload_size']) then
-      # Tell the application all the data has arrived
-      @ds.after_longupload_file
-      # Tell the client that its job is finished
-      @response['complete'] = true
-    end
 
     while @ds.longupload_bytes_received < new_bytes_received
       begin
@@ -210,6 +204,13 @@ module Longupload::Receiver
       rescue ActiveRecord::StaleObjectError
         @ds.reload
       end
+    end
+
+    if (new_bytes_received == @response['upload_size']) then
+      # Tell the application all the data has arrived
+      @ds.after_longupload_file
+      # Tell the client that its job is finished
+      @response['complete'] = true
     end
   end
 
