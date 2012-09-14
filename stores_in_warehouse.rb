@@ -45,7 +45,8 @@ module Longupload::StoresInWarehouse
   def after_longupload_file
     app_name = Rails.application.class.to_s.split('::').first
     Open3.popen3('whput',
-                 "--name=/#{app_name}/#{ROOT_URL}/#{self.class}/#{self.id}"
+                 "--name=/#{app_name}/#{ROOT_URL}/#{self.class}/#{self.id}",
+                 "-"
                  ) do |std_in, std_out, std_err, wait_thr|
       std_in.puts ". #{self.warehouse_blocks.join ' '} 0:#{self.longupload_size}:#{self.longupload_file_name}"
       std_in.close
