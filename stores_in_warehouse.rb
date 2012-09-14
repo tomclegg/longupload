@@ -12,8 +12,8 @@ module Longupload::StoresInWarehouse
       # self.warehouse_blocks was updated first.  If so, there's
       # nothing for us to do.
       reload                    # in case of race
-      if warehouse_blocks and warehouse_blocks[block_index]
-        return warehouse_blocks[block_index]
+      if self.warehouse_blocks and self.warehouse_blocks[block_index]
+        return self.warehouse_blocks[block_index]
       end
       raise "Oops, #{self.class} #{self.id} block #{block_index} not found in staging area."
     end
