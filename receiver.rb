@@ -84,6 +84,7 @@ module Longupload::Receiver
     # Maybe the Dataset object knows that it is complete
     @i = -1
     while true do
+      break if i >= 0 and @filesize_stored == @filesize_client
       @i += 1
       if File.exists?("#{@cachefile}.todo.#{@i}") and
           (@block_size = File.size("#{@cachefile}.todo.#{@i}")) then
