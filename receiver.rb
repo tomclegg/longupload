@@ -90,7 +90,10 @@ module Longupload::Receiver
           (@block_size = File.size("#{@cachefile}.todo.#{@i}")) then
         # stored on disk, not in warehouse yet
         @filesize_stored += @block_size
-        next if @block_size == WAREHOUSE_BLOCK_SIZE
+        if @block_size == WAREHOUSE_BLOCK_SIZE
+          @ds.after_longupload_block(@i)
+          next
+        end
       elsif ((@ds.warehouse_blocks and (@locator = @ds.warehouse_blocks[@i])) or
              (File.symlink?("#{@cachefile}.block.#{@i}") and
               (@locator = File.readlink("#{@cachefile}.block.#{@i}")))
