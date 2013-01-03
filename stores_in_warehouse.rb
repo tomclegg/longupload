@@ -48,7 +48,7 @@ module Longupload::StoresInWarehouse
                  "--name=/#{app_name}/#{ROOT_URL}/#{self.class}/#{self.id}",
                  "-"
                  ) do |std_in, std_out, std_err, wait_thr|
-      std_in.puts ". #{self.warehouse_blocks.join ' '} 0:#{self.longupload_size}:#{self.longupload_file_name}"
+      std_in.puts ". #{self.warehouse_blocks.join ' '} 0:#{self.longupload_size}:#{self.longupload_file_name.gsub ' ', '_'}"
       std_in.close
       new_manifest_locator = std_out.gets.strip rescue nil
       if wait_thr.respond_to? :value
