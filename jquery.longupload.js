@@ -37,7 +37,7 @@
   }
 
   function option (key, val) {
-	this.data('longupload').opts[key] = val;
+    this.data('longupload').opts[key] = val;
   }
 
   function init (opts_create) {
@@ -45,18 +45,18 @@
     if ($.fn.longupload.need_compatibility_check) {
       $.fn.longupload.need_compatibility_check = false;
       if (!$.fn.longupload.fnCheckCompatibility()) {
-		alert('The File APIs are not fully supported in this browser.');
+        alert('The File APIs are not fully supported in this browser.');
       } else if (!rstr_md5 || !rstr2hex) {
-		alert('Installation problem: need rstr_md5() and rstr2hex()');
+        alert('Installation problem: need rstr_md5() and rstr2hex()');
       }
     }
 
     var opts_all = $.extend({}, $.fn.longupload.defaults, opts_create);
 
     return this.each(function(){
-		var opts = $.meta ? $.extend({}, opts_all, $(this).data()) : opts_all;
-		var data = { 'opts': opts, 'input': this, 'jobs': [] };
-		$(this).data('longupload', data);
+        var opts = $.meta ? $.extend({}, opts_all, $(this).data()) : opts_all;
+        var data = { 'opts': opts, 'input': this, 'jobs': [] };
+        $(this).data('longupload', data);
       });
   }
 
@@ -80,21 +80,21 @@
   Job.prototype.onprogress = function() {
     if (this.state == 'finished') return;
     $(this.domTarget).trigger($.Event('longupload-progress'),
-							  [this, { 'state': this.state,
-									'speed': this.current_speed,
-									'position': this.current_pos,
-									'size': this.file.size }]);
+                              [this, { 'state': this.state,
+                                    'speed': this.current_speed,
+                                    'position': this.current_pos,
+                                    'size': this.file.size }]);
   }
   Job.prototype.onsuccess = function() {
     $(this.domTarget).trigger($.Event('longupload-success'),
-							  [this, { 'speed': this.current_speed,
-									   'size': this.file.size }]);
+                              [this, { 'speed': this.current_speed,
+                                       'size': this.file.size }]);
   }
   Job.prototype.onfailure = function() {
     $(this.domTarget).trigger($.Event('longupload-failure'),
-							  [this, { 'speed': this.current_speed,
-									   'size': this.file.size,
-									   'error': this.error }]);
+                              [this, { 'speed': this.current_speed,
+                                       'size': this.file.size,
+                                       'error': this.error }]);
   }
   Job.prototype.abort = function() {
     if (this.state == 'finished') return;
@@ -104,10 +104,10 @@
     var q = this.queueTarget.queue('longupload');
     for (i=0; q[i]; i++)
       if (q[i].job == this) {
-		q.splice(i,1);
-		--i;
-		if (this.progressbar_row)
-		  $(this.progressbar_row).remove();
+        q.splice(i,1);
+        --i;
+        if (this.progressbar_row)
+          $(this.progressbar_row).remove();
       }
     this.queueTarget.queue('longupload', q); // unnecessary? docs unclear
 
@@ -121,7 +121,7 @@
       was_in_progress.writer.xhr.abort();
     }
     $(this.domTarget).trigger($.Event('longupload-abort'),
-							  [this, { 'size': this.file.size }]);
+                              [this, { 'size': this.file.size }]);
   }
   function humanBytes(x) {
     var u = 'B';
@@ -133,22 +133,22 @@
     return x+' '+u;
   }
   Job.prototype.get_file = function() {
-	return this.file;
+    return this.file;
   }
   Job.prototype.get_upload_id = function() {
-	return this.server_says ? this.server_says.upload_id : null;
+    return this.server_says ? this.server_says.upload_id : null;
   }
   Job.prototype.get_last_server_response = function() {
-	return this.server_says;
+    return this.server_says;
   }
   Job.prototype.handle_server_response_to_upload_start = function(response) {
     this.state = 'upload';
     this.server_says = response;
-	if (!this.server_says.success) {
-	  this.error = this.server_says.error;
-	  this.onfailure();
-	  return;
-	}
+    if (!this.server_says.success) {
+      this.error = this.server_says.error;
+      this.onfailure();
+      return;
+    }
     if ($('meta[name="csrf-token"]').length > 0)
       this.csrf_token = $('meta[name="csrf-token"]').attr('content');
     this.bufsize = response.min_databytes || 65536;
@@ -195,9 +195,9 @@
       return;
     }
     this.reader.databytes = this.state=='scan' ?
-	this.ludata.opts.bQuicksigSize : this.bufsize;
+    this.ludata.opts.bQuicksigSize : this.bufsize;
     this.reader.databytes = Math.min(this.reader.databytes,
-									 this.file.size - this.reader.start);
+                                     this.file.size - this.reader.start);
     if (this.file.mozSlice)
       // (start, end, mimetype) -- Firefox
       this.reader.blob = this.file.mozSlice(this.reader.start, this.reader.databytes+this.reader.start,
@@ -259,40 +259,40 @@
       this.upload_in_progress = false;
       var resp;
       try {
-		resp = $.parseJSON(xhr.responseText);
+        resp = $.parseJSON(xhr.responseText);
       } finally { }
       if (!resp ||
-		  !resp.success ||
-		  resp.piece_size_received != this.writer.databytes) {
-		if (this.writer.attempts++ < 4) {
-		  // retry this block
-		  this.send_chunk_to_server();
-		} else {
-		  $(this.domTarget).longupload('stop');
-		  this.state = 'finished';
-		  this.error = resp && resp.error ? resp.error : null;
-		  this.onfailure();
-		  this.next();
-		}
+          !resp.success ||
+          resp.piece_size_received != this.writer.databytes) {
+        if (this.writer.attempts++ < 4) {
+          // retry this block
+          this.send_chunk_to_server();
+        } else {
+          $(this.domTarget).longupload('stop');
+          this.state = 'finished';
+          this.error = resp && resp.error ? resp.error : null;
+          this.onfailure();
+          this.next();
+        }
       }
       else {
-		delete this.writer.blob;
+        delete this.writer.blob;
         this.writer.blob = null;
-		var elapsed = ((new Date()).getTime() - this.uploadStartTime) / 1000;
-		if (this.writer.databytes > 0 ||
-			this.writer.start > this.uploadStartByte) {
-		  var MBps = (this.writer.start + this.writer.databytes - this.uploadStartByte)/elapsed/1000000;
-		  this.current_speed = [MBps.toFixed(MBps<2?3:1), ' MB/s'].join('');
-		}
-		else
-		  this.current_speed = false;
-		this.current_pos = this.writer.start + this.writer.databytes;
-		this.onprogress();
+        var elapsed = ((new Date()).getTime() - this.uploadStartTime) / 1000;
+        if (this.writer.databytes > 0 ||
+            this.writer.start > this.uploadStartByte) {
+          var MBps = (this.writer.start + this.writer.databytes - this.uploadStartByte)/elapsed/1000000;
+          this.current_speed = [MBps.toFixed(MBps<2?3:1), ' MB/s'].join('');
+        }
+        else
+          this.current_speed = false;
+        this.current_pos = this.writer.start + this.writer.databytes;
+        this.onprogress();
         $.extend(this.server_says, resp);
-		if (this.reader.ready) {
-		  this.reader.ready = false;
-		  this.filereader_onload();
-		}
+        if (this.reader.ready) {
+          this.reader.ready = false;
+          this.filereader_onload();
+        }
       }
     }
   }
@@ -323,44 +323,44 @@
       return;
     }
     var qs = quicksig(this.filereader.result,
-					  this.ludata.opts.bQuicksigSize);
+                      this.ludata.opts.bQuicksigSize);
     var elapsed = ((new Date()).getTime()-this.reader.startTime)/1000;
     this.lastblocktime = elapsed - this.elapsed;
     this.elapsed = elapsed;
     if (this.state == 'scan') {
       this.file_quicksig += "," + [this.reader.start,
-								   this.reader.blob.size,
-								   qs].join("-");
+                                   this.reader.blob.size,
+                                   qs].join("-");
       var MBps = (this.reader.start + this.reader.blob.size)/elapsed/1000000;
       this.current_speed = [MBps.toFixed(1), ' MB/s'].join('');
       this.current_pos = Math.min(this.file.size, this.reader.start + this.bufsize);
       this.onprogress();
     }
     else {
-	  this.writer = { "start": this.reader.start,
-					  "databytes": this.reader.blob.size,
-					  "quicksig": qs,
-					  "blob": this.reader.blob,
-					  "attempts": 1 };
-	  this.send_chunk_to_server();
+      this.writer = { "start": this.reader.start,
+                      "databytes": this.reader.blob.size,
+                      "quicksig": qs,
+                      "blob": this.reader.blob,
+                      "attempts": 1 };
+      this.send_chunk_to_server();
     }
     this.reader.start += this.bufsize;
     if (this.state == "scan" &&
-		this.reader.start >= this.file.size) {
+        this.reader.start >= this.file.size) {
       this.state = "server-sync";
       this.onprogress();
       this.reader.startTime = (new Date()).getTime();
       var thisjob = this;
       this.xhr = $.post(this.ludata.opts.sUploadHandlerURI,
-						$.extend({}, {
+                        $.extend({}, {
                             "file_quicksig": this.file_quicksig,
                             "file_name": this.file.name },
                           this.oUploadHandlerData),
-						function(d,t,r){
-						  thisjob.read_in_progress = false;
-						  thisjob.handle_server_response_to_upload_start(d);
-						},
-						"json");
+                        function(d,t,r){
+                          thisjob.read_in_progress = false;
+                          thisjob.handle_server_response_to_upload_start(d);
+                        },
+                        "json");
       this.xhr.error(function(d,t,r){
           thisjob.read_in_progress = false;
           thisjob.handle_server_response_to_upload_start({error:'Request failed while starting upload'});
@@ -368,20 +368,20 @@
       return;
     }
     else if (this.state == "upload" &&
-			 this.server_says.max_databytes &&
-			 this.bufsize < 128*1024*1024 &&
-			 this.lastblocktime < 2) {
+             this.server_says.max_databytes &&
+             this.bufsize < 128*1024*1024 &&
+             this.lastblocktime < 2) {
       this.bufsize = Math.min (this.bufsize * 2, this.server_says.max_databytes);
     }
     this.read_current_slice();
   }
   function stop() {
     return this.each(function(){
-		var ludata = $(this).data('longupload');
-		$.each(ludata.jobs, Job.prototype.abort);
-		if (ludata.jobs.length > 0)
-		  ludata.jobs[0].queueTarget.queue('longupload', []);
-		ludata.jobs.splice(0);
+        var ludata = $(this).data('longupload');
+        $.each(ludata.jobs, Job.prototype.abort);
+        if (ludata.jobs.length > 0)
+          ludata.jobs[0].queueTarget.queue('longupload', []);
+        ludata.jobs.splice(0);
       });
   }
   function go(opts) {
@@ -389,46 +389,46 @@
       opts = {};
     this.longupload("stop");
     this.each(clear_progressbars);
-	var queue = [];
+    var queue = [];
     var queueTarget = $(opts.sQueueTarget ? opts.sQueueTarget : document);
     var alljobs = [];
     var ret = this.each(function(){
-		var $this = $(this);
-		var ludata = $this.data("longupload");
+        var $this = $(this);
+        var ludata = $this.data("longupload");
         $.extend(ludata.opts, opts);
-		for (var i=0; this.files[i]; i++) {
-		  var f = this.files[i];
-		  var job = new Job ({"ludata": ludata,
+        for (var i=0; this.files[i]; i++) {
+          var f = this.files[i];
+          var job = new Job ({"ludata": ludata,
                               "oUploadHandlerData": opts.oUploadHandlerData,
-							  "domTarget": this,
-							  "queueTarget": queueTarget,
-							  "file": f,
-							  "state": "scan",
-							  "file_quicksig": ""+f.size,
-							  "bufsize": ludata.opts.fScanChunkSize(f.size),
-							  "reader": { "ready": 0,
-										  "start": 0,
-										  "startTime": (new Date()).getTime() },
-							  'filereader': new FileReader() });
-		  ludata.jobs.push(job);
-		  alljobs.push(job);
-		  if (ludata.opts.bAutoProgressBar)
-			add_progressbar(this, $this, job);
-		  var runjob = function(next) {
-			arguments.callee.job.next = next;
-			arguments.callee.job.read_current_slice();
-		  };
-		  runjob.job = job;
-		  queue.push(runjob);
-		  $this.trigger($.Event('longupload-queue'), [job]);
-		}
+                              "domTarget": this,
+                              "queueTarget": queueTarget,
+                              "file": f,
+                              "state": "scan",
+                              "file_quicksig": ""+f.size,
+                              "bufsize": ludata.opts.fScanChunkSize(f.size),
+                              "reader": { "ready": 0,
+                                          "start": 0,
+                                          "startTime": (new Date()).getTime() },
+                              'filereader': new FileReader() });
+          ludata.jobs.push(job);
+          alljobs.push(job);
+          if (ludata.opts.bAutoProgressBar)
+            add_progressbar(this, $this, job);
+          var runjob = function(next) {
+            arguments.callee.job.next = next;
+            arguments.callee.job.read_current_slice();
+          };
+          runjob.job = job;
+          queue.push(runjob);
+          $this.trigger($.Event('longupload-queue'), [job]);
+        }
       });
     var runfinish = function(){
       queueTarget.trigger($.Event('longupload-queue-finish'), [alljobs]);
     };
     runfinish.trigger_finish = true;
-	queue.push(runfinish);
-	queueTarget.queue('longupload', queue);
+    queue.push(runfinish);
+    queueTarget.queue('longupload', queue);
     queueTarget.dequeue('longupload');
     return ret;
   }
@@ -445,8 +445,8 @@
     var scandiv = row.children('div:eq(1)');
     var uploaddiv = row.children('div:eq(2)');
     scandiv.css('margin','0 5px 0 0');
-	scandiv.css({'height': '12px', 'width': '100px'});
-	uploaddiv.css({'height': '12px', 'width': '400px'});
+    scandiv.css({'height': '12px', 'width': '100px'});
+    uploaddiv.css({'height': '12px', 'width': '400px'});
     if(scandiv.progressbar) {
       scandiv.progressbar().children('div');
       uploaddiv.progressbar().children('div');
@@ -455,50 +455,50 @@
     target.append(row);
     job.progressbar_row = row;
     function progressfunction (e, j, p) {
-	  if (j != job) return;
+      if (j != job) return;
       var statustext;
       var speed = p && p.speed ? '(' + p.speed + ')' : '';
-	  var d = new Date();
-	  var datestring = d.toString().
-		replace(/ GMT[-+][0-9]+( \([A-Z]+\))?/, '').
-		replace(/ [0-9][0-9][0-9][0-9] /, ' ');
+      var d = new Date();
+      var datestring = d.toString().
+        replace(/ GMT[-+][0-9]+( \([A-Z]+\))?/, '').
+        replace(/ [0-9][0-9][0-9][0-9] /, ' ');
       if (e.type == 'longupload-queue') {
-		statustext = 'queued';
+        statustext = 'queued';
       }
       else if (e.type == 'longupload-success') {
         if(scandiv.progressbar) {
           scandiv.progressbar('option', 'value', 100);
           uploaddiv.progressbar('option', 'value', 100);
         }
-		statustext = '<b>finished</b> ' + speed + ' ' + datestring;
+        statustext = '<b>finished</b> ' + speed + ' ' + datestring;
       }
       else if (e.type == 'longupload-failure') {
-		var error = p.error ? '(' + p.error + ')' : '';
-		statustext = '<b>failed</b> ' + error + ' ' + datestring;
+        var error = p.error ? '(' + p.error + ')' : '';
+        statustext = '<b>failed</b> ' + error + ' ' + datestring;
       }
       else if (e.type == 'longupload-abort') {
-		statustext = '<b>cancelled</b> at ' + datestring;
+        statustext = '<b>cancelled</b> at ' + datestring;
       }
       else if (p.state == 'server-sync') {
         if(scandiv.progressbar) {
           scandiv.progressbar('option', 'value', 100);
         }
-		statustext = '100% scanned, waiting for server';
+        statustext = '100% scanned, waiting for server';
       }
       else {
-		var pdiv = p.state == 'scan' ? scandiv : uploaddiv;
-		var percent = 100 * p.position / p.size;
+        var pdiv = p.state == 'scan' ? scandiv : uploaddiv;
+        var percent = 100 * p.position / p.size;
         if(scandiv.progressbar) {
           pdiv.progressbar('option', 'value', percent);
         }
-		statustext = [(p.state == 'scan' ? 'scanned ' : 'uploaded '),
-					  percent.toFixed(0), '% [',
-					  humanBytes(p.position), '] ',
-					  speed].join('');
+        statustext = [(p.state == 'scan' ? 'scanned ' : 'uploaded '),
+                      percent.toFixed(0), '% [',
+                      humanBytes(p.position), '] ',
+                      speed].join('');
       }
       textdiv.html(['<span style="font:9pt monospace">',
-					job.file.name, '</span> [',
-					humanBytes(job.file.size), '] ', statustext].join(''));
+                    job.file.name, '</span> [',
+                    humanBytes(job.file.size), '] ', statustext].join(''));
     }
     $input.bind('longupload-queue', progressfunction);
     $input.bind('longupload-progress', progressfunction);

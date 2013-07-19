@@ -62,9 +62,9 @@ function finish(event, jobs) {
   if (event.type != 'longupload-queue-finish') return;
   var params = { 'filecount': jobs.length };
   $.each(jobs,function(i,job){
-	  params['file'+i+'_name'] = job.get_file().name;
-	  params['file'+i+'_upload_id'] = job.get_upload_id();
-	});
+          params['file'+i+'_name'] = job.get_file().name;
+          params['file'+i+'_upload_id'] = job.get_upload_id();
+        });
   console.log(params);
 }
 $(document).ready(function(){maybemorefiles($('form'));});
